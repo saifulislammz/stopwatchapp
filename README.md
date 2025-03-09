@@ -9,4 +9,4 @@ A modern, visually appealing stopwatch web application featuring a circular disp
 ![App Screenshot](https://i.ibb.co.com/8DCJ7Qkm/stopwatch.jpg)
 
 #
-Visite:https://stopwatch-novara.netlify.app/
+Visite: https://stopwatch-novara.netlify.app/
