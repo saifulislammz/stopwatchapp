@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Stopwatch</title>
+    <style>
+        /* Reset default styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Main layout and background */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            font-family: 'Segoe UI', sans-serif;
+            color: #fff;
+        }
+
+        /* Stopwatch container with glassmorphism effect */
+        .stopwatch {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 90%;
+            width: 400px;
+            height: 95vh;
+        }
+
+        /* Circular display container */
+        .display-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 0 auto 1rem;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #16213e, #1a1a2e);
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 5px solid rgb(255, 255, 255);
+        }
+
+        /* Time display styling */
+        .display {
+            font-size: 2.5rem;
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+        }
+
+        /* Rotating status indicator */
+        .status-indicator {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: rgb(5, 245, 113); /* Active color */
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            top: 0;
+            left: 50%;
+            transform-origin: 0 150px;
+            animation: rotate 2s linear infinite;
+            animation-play-state: paused;
+        }
+
+        /* Rotation animation for status indicator */
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg) translateX(0);
+            }
+            to {
+                transform: rotate(360deg) translateX(0);
+            }
+        }
+
+        /* Active state for status indicator */
+        .status-indicator.active {
+            opacity: 1;
+        }
+
+        /* Control buttons layout */
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Common button styles */
+        button {
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            backdrop-filter: blur(5px);
+        }
+
+        /* Button press animation */
+        button:active {
+            transform: scale(0.95);
+        }
+
+        /* Individual button colors */
+        #startBtn {
+            background: linear-gradient(135deg, #00b894, #00cec9);
+            color: white;
+        }
+
+        #stopBtn {
+            background: linear-gradient(135deg, #d63031, #e17055);
+            color: white;
+        }
+
+        #resetBtn {
+            background: linear-gradient(135deg, #0984e3, #74b9ff);
+            color: white;
+        }
+
+        #lapBtn {
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            color: white;
+        }
+
+        /* Lap times container */
+        .laps {
+            max-height: 150px;
+            overflow-y: auto;
+            margin-top: 1rem;
+            padding: 0.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+        }
+
+        /* Scrollbar styling */
+        .laps::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .laps::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .laps::-webkit-scrollbar-thumb {
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+
+        /* Individual lap time entry */
+        .lap-time {
+            padding: 0.8rem;
+            margin: 0.5rem 0;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Responsive design for mobile devices */
+        @media (max-width: 480px) {
+            .stopwatch {
+                padding: 1.5rem;
+            }
+
+            .display-container {
+                width: 200px;
+                height: 200px;
+            }
+
+            .display {
+                font-size: 2rem;
+            }
+
+            button {
+                padding: 0.7rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Main stopwatch container -->
+    <div class="stopwatch">
+        <!-- Circular display with rotating indicator -->
+        <div class="display-container">
+            <div class="status-indicator"></div>
+            <div class="display" id="display">00:00:00.000</div>
+        </div>
+        <!-- Control buttons -->
+        <div class="controls">
+            <button id="startBtn">Start</button>
+            <button id="stopBtn" style="display: none;">Stop</button>
+            <button id="resetBtn" style="display: none;">Reset</button>
+            <button id="lapBtn">Lap</button>
+        </div>
+        <!-- Container for lap times -->
+        <div class="laps" id="laps"></div>
+    </div>
+    <script>
+        // State variables
+        let startTime = 0;          // Timestamp when timer starts
+        let elapsedTime = 0;        // Total time elapsed
+        let timerInterval = null;   // Interval ID for timer updates
+        let isRunning = false;      // Timer running state
+        let laps = [];              // Array to store lap times
+
+        // DOM element references
+        const display = document.getElementById('display');
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const lapBtn = document.getElementById('lapBtn');
+        const lapsDiv = document.getElementById('laps');
+        const statusIndicator = document.querySelector('.status-indicator');
+
+        // Start/Resume timer function
+        function start() {
+            if (!isRunning) {
+                isRunning = true;
+                startTime = Date.now() - elapsedTime;  // Account for paused time
+                timerInterval = setInterval(updateTime, 10);  // Update every 10ms
+                
+                // Update UI elements
+                startBtn.style.display = 'none';
+                stopBtn.style.display = 'block';
+                lapBtn.style.display = 'block';
+                resetBtn.style.display = 'none';
+                statusIndicator.classList.add('active');
+                statusIndicator.style.animationPlayState = 'running';
+            }
+        }
+
+        // Stop/Pause timer function
+        function stop() {
+            if (isRunning) {
+                isRunning = false;
+                clearInterval(timerInterval);
+                
+                // Update UI elements
+                stopBtn.style.display = 'none';
+                lapBtn.style.display = 'none';
+                startBtn.style.display = 'block';
+                startBtn.textContent = 'Resume';
+                resetBtn.style.display = 'block';
+                statusIndicator.classList.remove('active');
+                statusIndicator.style.animationPlayState = 'paused';
+            }
+        }
+
+        // Reset timer function
+        function reset() {
+            isRunning = false;
+            clearInterval(timerInterval);
+            elapsedTime = 0;
+            laps = [];
+            
+            // Reset display and UI elements
+            display.textContent = '00:00:00.000';
+            lapsDiv.innerHTML = '';
+            startBtn.textContent = 'Start';
+            startBtn.style.display = 'block';
+            stopBtn.style.display = 'none';
+            resetBtn.style.display = 'none';
+            lapBtn.style.display = 'block';
+            statusIndicator.classList.remove('active');
+            statusIndicator.style.animationPlayState = 'paused';
+        }
+
+        // Record lap time function
+        function lap() {
+            if (isRunning) {
+                const lapTime = formatTime(elapsedTime);
+                laps.push(lapTime);
+                
+                // Create and insert lap time element
+                const lapElement = document.createElement('div');
+                lapElement.classList.add('lap-time');
+                lapElement.innerHTML = `
+                    <span>Lap ${laps.length}</span>
+                    <span>${lapTime}</span>
+                `;
+                lapsDiv.insertBefore(lapElement, lapsDiv.firstChild);
+            }
+        }
+
+        // Update timer display
+        function updateTime() {
+            elapsedTime = Date.now() - startTime;
+            display.textContent = formatTime(elapsedTime);
+        }
+
+        // Format milliseconds to HH:MM:SS.mmm
+        function formatTime(ms) {
+            const hours = Math.floor(ms / 3600000);
+            const minutes = Math.floor((ms % 3600000) / 60000);
+            const seconds = Math.floor((ms % 60000) / 1000);
+            const milliseconds = Math.floor(ms % 1000);
+
+            return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}.${pad(milliseconds, 3)}`;
+        }
+
+        // Pad numbers with leading zeros
+        function pad(number, length = 2) {
+            return String(number).padStart(length, '0');
+        }
+
+        // Event listeners for buttons
+        startBtn.addEventListener('click', start);
+        stopBtn.addEventListener('click', stop);
+        resetBtn.addEventListener('click', reset);
+        lapBtn.addEventListener('click', lap);
+    </script>
+</body>
+</html>
